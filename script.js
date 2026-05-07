@@ -172,7 +172,7 @@ async function sendMessage() {
  
 async function getChatReply(userMessage) {
     try {
-        var response = await fetch('http://127.0.0.1:5000/chat', {
+        var response = await fetch('/chat', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ 
@@ -289,7 +289,7 @@ async function searchPapers() {
     resultsDiv.innerHTML = '<p style="text-align:center;color:#6b6b6b;padding:40px;grid-column:span 2;font-family:DM Mono,monospace;font-size:13px">Searching ArXiv, Semantic Scholar & OpenAlex...</p>';
 
     try {
-        var response = await fetch('http://127.0.0.1:5000/search?q=' + encodeURIComponent(query));
+        var response = await fetch('/search?q=' + encodeURIComponent(query));
         var papers   = await response.json();
 
         if (!papers.length) {
@@ -354,7 +354,7 @@ async function openSummarize(encSum, encTitle) {
     openModal('✦ AI Summary', spinnerHtml('Summarizing paper...'));
  
     try {
-        var response = await fetch('http://127.0.0.1:5000/summarize', {
+        var response = await fetch('/summarize', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ text: text })
@@ -385,7 +385,7 @@ async function openFlashcards(encSum, encTitle) {
     openModal('⟐ Flashcards', spinnerHtml('Generating flashcards...'));
 
     try {
-        var response = await fetch('http://127.0.0.1:5000/flashcards', {
+        var response = await fetch('/flashcards', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -669,7 +669,7 @@ function closeReader() {
 
 async function generateFollowUps(responseText, messageDiv) {
     try {
-        const response = await fetch('http://127.0.0.1:5000/followups', {
+        const response = await fetch('/followups', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: responseText })
@@ -711,7 +711,7 @@ async function loadNews() {
     if (!container) return;
 
     try {
-        var response = await fetch('http://127.0.0.1:5000/news?q=artificial+intelligence+research');
+        var response = await fetch('/news?q=artificial+intelligence+research');
         var data = await response.json();
         var articles = data.articles || [];
 
@@ -750,7 +750,7 @@ async function findGaps() {
     results.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div><div class="spinner-text">Analyzing research landscape...</div></div>';
 
     try {
-        var response = await fetch('http://127.0.0.1:5000/gapfinder', {
+        var response = await fetch('/gapfinder', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ topic: topic })
@@ -915,7 +915,7 @@ async function handleFileUpload(event) {
         var formData = new FormData();
         formData.append('file', file);
 
-        var response = await fetch('http://127.0.0.1:5000/upload', {
+        var response = await fetch('/upload', {
             method: 'POST',
             body: formData
         });

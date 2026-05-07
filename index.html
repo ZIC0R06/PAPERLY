@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Paperly — AI Research Assistant</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<!-- Intro Loader -->
+<div id="introLoader">
+    <div class="intro-bg-grid"></div>
+    <div class="intro-rings">
+        <div class="intro-ring r1"></div>
+        <div class="intro-ring r2"></div>
+        <div class="intro-ring r3"></div>
+    </div>
+    <div class="intro-content">
+        <div class="intro-wordmark">PAPERLY</div>
+        <div class="intro-line"></div>
+        <div class="intro-sub">// AI Research Assistant</div>
+        <div class="intro-dots">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+</div>
+
+<!-- Particle Canvas -->
+<canvas id="particleCanvas"></canvas>
+    <!-- ═══ NAVBAR ══════════════════════════════════════════════════════════ -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="nav-link" onclick="showView('chat')">Chat</span>
+            <span class="nav-link" onclick="showView('search')">Papers</span>
+            <span class="nav-link" onclick="showView('gapfinder')">Gap Finder</span>
+            <span class="nav-link" onclick="showView('about')">About</span>
+             <span class="nav-link" onclick="showView('history')">History</span>
+        </div>
+        <div class="nav-logo" onclick="showView('chat')">PAPERLY</div>
+        <div class="nav-right">
+            <span class="nav-badge">AI Research Assistant</span>
+        </div>
+    </nav>
+
+    <!-- ═══ CHAT VIEW ════════════════════════════════════════════════════════ -->
+    <div id="chatView" class="view active">
+
+        <!-- Ambient background -->
+        <div class="ambient"></div>
+
+        <div class="chat-layout">
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-title">Research Assistant</div>
+                <p class="sidebar-desc">Ask anything about research topics, or paste a paper link to get a summary.</p>
+
+                <div class="sidebar-divider"></div>
+
+                <div class="sidebar-label">Try asking</div>
+                <div class="suggestion" onclick="sendSuggestion('What is transformer architecture in deep learning?')">
+                    What is transformer architecture?
+                </div>
+                <div class="suggestion" onclick="sendSuggestion('Explain reinforcement learning from human feedback (RLHF)')">
+                    Explain RLHF
+                </div>
+                <div class="suggestion" onclick="sendSuggestion('What are the latest trends in large language models?')">
+                    Latest LLM trends
+                </div>
+                <div class="suggestion" onclick="sendSuggestion('Summarize this paper: https://arxiv.org/abs/1706.03762')">
+                    Summarize Attention Is All You Need
+                </div>
+
+                <div class="sidebar-divider"></div>
+                     <div class="sidebar-label">Chat Persona</div>
+<div class="persona-grid">
+  <button class="persona-btn active" onclick="setPersona('professor')" id="p-professor">🎓 Professor</button>
+  <button class="persona-btn" onclick="setPersona('eli5')" id="p-eli5">🧒 ELI5</button>
+  <button class="persona-btn" onclick="setPersona('researcher')" id="p-researcher">🔬 Researcher</button>
+  <button class="persona-btn" onclick="setPersona('tldr')" id="p-tldr">⚡ TL;DR</button>
+</div>
+<div class="sidebar-divider"></div> 
+<div class="sidebar-label">Latest Research News</div>
+<div id="newsContainer">
+    <div style="font-size:11px;color:#6b6b6b;font-family:'DM Mono',monospace;">Loading news...</div>
+</div>
+
+<div class="sidebar-divider"></div>
+                <button class="save-btn" onclick="saveChat()">Save conversation</button>
+                <button class="clear-btn" onclick="clearChat()">Clear conversation</button>
+            </aside>
+
+            <!-- Chat main -->
+            <main class="chat-main">
+
+                <!-- Messages -->
+                <div class="messages" id="messages">
+                    <div class="message assistant">
+                        <div class="msg-avatar">P</div>
+                        <div class="msg-content">
+                            <div class="msg-bubble">
+                                Hello! I'm Paperly, your AI research assistant. I can help you:
+                                <ul class="msg-list">
+                                    <li>Answer questions about any research topic</li>
+                                    <li>Search and find academic papers</li>
+                                    <li>Summarize papers — just paste an ArXiv link</li>
+                                </ul>
+                                What would you like to explore today?
+                            </div>
+                            <div class="msg-time">Just now</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input -->
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <textarea
+                            id="chatInput"
+                            class="chat-textarea"
+                            placeholder="Ask a research question or paste an ArXiv link..."
+                            rows="1"
+                            onkeydown="handleKey(event)"
+                            oninput="autoResize(this)"
+                        ></textarea>
+                    <input type="file" id="fileInput" accept=".pdf,.txt" style="display:none" onchange="handleFileUpload(event)">
+        <button class="attach-btn" onclick="document.getElementById('fileInput').click()" title="Upload paper">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>     
+                        <button class="mic-btn" id="micBtn" onclick="toggleVoice()" title="Voice input">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" y1="19" x2="12" y2="23"></line>
+        <line x1="8" y1="23" x2="16" y2="23"></line>
+    </svg>
+</button>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="input-hint">Press Enter to send · Shift+Enter for new line</p>
+                </div>
+
+            </main>
+
+        </div>
+    </div>
+
+    <!-- ═══ SEARCH VIEW ══════════════════════════════════════════════════════ -->
+    <div id="searchView" class="view">
+
+        <div class="search-layout">
+            <div class="search-header">
+                <h1 class="search-title">Search Papers</h1>
+                <p class="search-sub">Find academic research from ArXiv</p>
+            </div>
+
+            <div class="search-box-wrap">
+                <input
+                    id="searchInput"
+                    type="text"
+                    class="search-input"
+                    placeholder="Search papers, topics, or ideas..."
+                    onkeydown="if(event.key==='Enter') searchPapers()"
+                />
+                <button class="search-btn" onclick="searchPapers()">Search</button>
+            </div>
+
+            <div id="resultsSection" class="results-section hidden">
+                <div id="results" class="results-grid"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══ ABOUT VIEW ═══════════════════════════════════════════════════════ -->
+    <div id="aboutView" class="view">
+        <div class="about-layout">
+
+            <!-- Hero -->
+            <div class="about-hero">
+                <div class="about-wordmark">PAPERLY</div>
+                <div class="about-tagline">// AI Research Assistant</div>
+                <p class="about-desc">Paperly bridges the gap between you and academic knowledge — making research faster, clearer, and more accessible through the power of AI.</p>
+            </div>
+
+            <!-- Features -->
+            <div class="about-section">
+                <div class="about-section-label">What Paperly does</div>
+                <div class="about-features">
+                    <div class="about-feat">
+                        <div class="about-feat-icon">✦</div>
+                        <div class="about-feat-title">AI Chat</div>
+                        <p class="about-feat-desc">Ask any research question in plain language and get clear, insightful answers powered by Groq.</p>
+                    </div>
+                    <div class="about-feat">
+                        <div class="about-feat-icon">⊕</div>
+                        <div class="about-feat-title">Paper Search</div>
+                        <p class="about-feat-desc">Search millions of ArXiv papers by topic, author, or keyword — and open them directly.</p>
+                    </div>
+                    <div class="about-feat">
+                        <div class="about-feat-icon">⟐</div>
+                        <div class="about-feat-title">Flashcards</div>
+                        <p class="about-feat-desc">Turn dense paper abstracts into interactive flashcards for quick and effective learning.</p>
+                    </div>
+                    <div class="about-feat">
+                        <div class="about-feat-icon">◈</div>
+                        <div class="about-feat-title">Summaries</div>
+                        <p class="about-feat-desc">Get AI-generated plain-English summaries of any paper abstract in seconds.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How it works -->
+            <div class="about-section">
+                <div class="about-section-label">How it works</div>
+                <div class="about-steps">
+                    <div class="about-step">
+                        <div class="about-step-num">01</div>
+                        <div class="about-step-body">
+                            <div class="about-step-title">Search or Ask</div>
+                            <p class="about-step-desc">Type a topic, question, or paste an ArXiv link into the chat or search bar.</p>
+                        </div>
+                    </div>
+                    <div class="about-step-divider"></div>
+                    <div class="about-step">
+                        <div class="about-step-num">02</div>
+                        <div class="about-step-body">
+                            <div class="about-step-title">AI Processes</div>
+                            <p class="about-step-desc">Groq reads, understands, and synthesizes the relevant research for you.</p>
+                        </div>
+                    </div>
+                    <div class="about-step-divider"></div>
+                    <div class="about-step">
+                        <div class="about-step-num">03</div>
+                        <div class="about-step-body">
+                            <div class="about-step-title">Learn Faster</div>
+                            <p class="about-step-desc">Get summaries, flashcards, or direct answers — tailored to how you learn.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stack -->
+
+            <!-- Quote -->
+            <div class="about-quote">
+                <p>"Research should be accessible to everyone — not just those with institutional access or years of domain expertise."</p>
+            </div>
+
+            <!-- Footer CTA -->
+            <div class="about-footer">
+                <p class="about-footer-text">Made with <span style="color:var(--accent)">♥</span> </p>
+                <div class="about-cta-row">
+                    <button class="about-cta" onclick="showView('chat')">Start chatting →</button>
+                    <button class="about-cta-outline" onclick="showView('search')">Browse papers →</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ═══ AI MODAL ════════════════════════════════════════════════════════ -->
+    <div id="aiModal" class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="modalTitle" class="modal-title"></span>
+                <button onclick="closeModal()" class="modal-close">✕</button>
+            </div>
+            <div id="modalBody" class="modal-body"></div>
+        </div>
+    </div>
+     <!-- ═══ GAP FINDER VIEW ══════════════════════════════════════════════════ -->
+    <div id="gapfinderView" class="view">
+        <div class="gap-layout">
+            <div class="gap-header">
+                <h1 class="gap-title">Research Gap Finder</h1>
+                <p class="gap-sub">Discover what's missing in current research</p>
+            </div>
+
+            <div class="gap-input-wrap">
+                <input
+                    id="gapInput"
+                    type="text"
+                    class="gap-input"
+                    placeholder="Enter a research topic e.g. machine learning in healthcare..."
+                    onkeydown="if(event.key==='Enter') findGaps()"
+                />
+                <button class="gap-btn" onclick="findGaps()">Find Gaps →</button>
+            </div>
+
+            <div id="gapResults" class="gap-results hidden"></div>
+        </div>
+    </div>
+<!-- ═══ HISTORY VIEW ═══════════════════════════════════════════════════════ -->
+    <div id="historyView" class="view">
+        <div class="history-layout">
+            <div class="history-header">
+                <h1 class="history-title">Chat History</h1>
+                <p class="history-sub">Your saved conversations</p>
+            </div>
+            <div id="historyList" class="history-list"></div>
+        </div>
+    </div>
+
+    <!-- ═══ CHAT READER MODAL ══════════════════════════════════════════════════ -->
+    <div id="readerModal" class="modal-backdrop" onclick="if(event.target===this)closeReader()">
+        <div class="modal-box reader-box">
+            <div class="modal-header">
+                <span id="readerTitle" class="modal-title"></span>
+                <button onclick="closeReader()" class="modal-close">✕</button>
+            </div>
+            <div id="readerBody" class="modal-body reader-body"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

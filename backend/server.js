@@ -8,7 +8,12 @@ const multer = require("multer");        // 👈 LINE 7
 const pdfParse = require("pdf-parse");
 
 const app = express();
+app.use(express.static(path.join(__dirname, "../")));
 
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../index.html"));
+});
+const pdfParse = require("pdf-parse");
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST'],

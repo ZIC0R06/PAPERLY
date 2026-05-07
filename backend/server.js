@@ -1,6 +1,6 @@
 const OpenAI = require("openai");
 require("dotenv").config();
-
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
@@ -13,7 +13,7 @@ app.use(express.static(path.join(__dirname, "../")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../index.html"));
 });
-const pdfParse = require("pdf-parse");
+
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST'],

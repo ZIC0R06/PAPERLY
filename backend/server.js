@@ -583,7 +583,7 @@ app.post("/followups", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(
-    "✅ Paperly server running on http://localhost:5000"
+    `✅ Paperly server running on port ${PORT}`
   );
   console.log("   /search      → ArXiv");
   console.log("   /summarize   → HuggingFace");

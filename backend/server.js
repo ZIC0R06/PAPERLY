@@ -25,6 +25,7 @@ const PORT = process.env.PORT || 5000;
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const HF_API_KEY = process.env.HF_API_KEY;
 const NEWS_API_KEY = process.env.NEWS_API_KEY;
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
 if (!GROQ_API_KEY || !HF_API_KEY) {
   console.error("Missing API keys in .env file");
   process.exit(1);
@@ -268,7 +269,7 @@ ${text.substring(0, 3000)}
 
   try {
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: GROQ_MODEL,
       messages: [
         {
           role: "system",
@@ -361,7 +362,7 @@ app.post("/gapfinder", async (req, res) => {
 
     try {
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: GROQ_MODEL,
             messages: [
                 {
                     role: "system",
@@ -489,7 +490,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         }
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: GROQ_MODEL,
             messages: [
                 {
                     role: "system",
@@ -547,7 +548,7 @@ app.post("/chat", async (req, res) => {
     if (!messages) return res.status(400).json({ error: "No messages" });
     try {
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: GROQ_MODEL,
             messages: [
                 { role: "system", content: system || "You are a helpful research assistant." },
                 ...messages
@@ -566,7 +567,7 @@ app.post("/followups", async (req, res) => {
     if (!text) return res.json({ questions: [] });
     try {
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: GROQ_MODEL,
             messages: [
                 { role: "system", content: 'Return ONLY JSON: {"questions": ["Q1?", "Q2?", "Q3?"]}' },
                 { role: "user", content: "Generate 3 follow-up questions for: " + text.substring(0, 1000) }
